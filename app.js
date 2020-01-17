@@ -4,8 +4,7 @@ import dotenv from "dotenv";
 import chalk from "chalk";
 import chokidar from "chokidar";
 import { printer as ThermalPrinter, types } from "node-thermal-printer";
-import AWS from 'aws-sdk';
-import S3 from 'aws-sdk/clients/s3';
+import sanityClient from '@sanity/client'
 import fs from 'fs';
 import path from 'path';
 
@@ -17,33 +16,11 @@ function printImage(printer, image) {
   console.log(chalk.green('Start printing image...'));
 }
 
-function sendToServer(filePath) {
-  const fileName = path.basename(filePath);
-
-  const client = new S3({
-    params: {
-      Bucket: process.env.S3_BUCKET
-    }
-  });
-
-  fs.readFile(filePath, (err, data) => {
-    if (err) {
-      console.log(chalk.red(`Could not read file: ${err}`));
-      return;
-    }
-
-    const params = {
-      Key: fileName,
-      Body: data,
-    };
-
-    client.upload(params, (err, _data) => {
-      if (err) {
-        console.log(chalk.red(`Error uploading file to S3: ${err}`));
-      } else {
-        console.log(chalk.green(`File successfully uploaded to S3!`));
-      }
-    });
+function sendToServer(client, filePath) {
+  client.assets.upload('image', fs.createReadStream(filePath), {
+    filename: path.basename(filePath)
+  }).then(_imageAsset => {
+    console.log(chalk.green('Asset uploaded to Sanity'));
   });
 }
 
@@ -70,16 +47,16 @@ async function setupPrinter() {
   return printer;
 }
 
-function setupAWS() {
-  AWS.config.update({
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID,
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
-    region: process.env.AWS_REGION,
+function setupSanity() {
+  return sanityClient({
+    projectId: process.env.SANITY_PROJECT_ID,
+    dataset: process.env.SANITY_DATASET,
+    token: process.env.SANITY_TOKEN
   });
 }
 
 async function setup() {
-  setupAWS();
+  const client = setupSanity();
   const printer = setupPrinter();
 
   // Initialize watcher.
@@ -93,7 +70,7 @@ async function setup() {
     console.log(chalk.green(`file added at path: ${path}`));
 
     printImage(printer, path);
-    sendToServer(path);
+    sendToServer(client, path);
   });
 }
 
