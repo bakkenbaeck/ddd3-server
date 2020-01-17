@@ -13,6 +13,7 @@
   "license": "ISC",
   "dependencies": {
     "add": "^2.0.6",
+    "aws-sdk": "^2.605.0",
     "babel-core": "^6.26.3",
     "babel-eslint": "^10.0.3",
     "babel-plugin-transform-runtime": "^6.23.0",
@@ -20,8 +21,10 @@
     "babel-preset-stage-1": "^6.24.1",
     "babel-register": "^6.26.0",
     "chalk": "^3.0.0",
+    "chokidar": "^3.3.1",
     "cors": "^2.8.5",
     "dotenv": "^8.2.0",
-    "express": "^4.17.1"
+    "express": "^4.17.1",
+    "node-thermal-printer": "^4.1.1"
   }
 }
