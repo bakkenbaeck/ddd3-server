@@ -12,8 +12,29 @@ import path from 'path';
 // automatically
 dotenv.config();
 
-function printImage(printer, image) {
+async function printImage(printer, image) {
+
   console.log(chalk.green('Start printing image...'));
+
+  try {
+    printer.clear();
+    printer.alignCenter();
+    printer.println("Bakken & Bæck");
+    printer.println("Van Diemenstraat 38");
+    printer.println("1013 NH Amsterdam");
+    printer.println("~~~~~~~~~~~");
+    printer.println("You're awesome! :)");
+
+    await printer.printImage(image);
+
+    printer.cut();
+    // printer.clear();
+    printer.execute();
+
+    console.log(chalk.green('Image printed'));
+  } catch(error) {
+    console.log(chalk.red('Error printing image', error));
+  }
 }
 
 function sendToServer(client, filePath) {
@@ -25,15 +46,9 @@ function sendToServer(client, filePath) {
 }
 
 async function setupPrinter() {
-  let printer = new ThermalPrinter({
+  const printer = new ThermalPrinter({
     type: types.EPSON,
-    interface: process.env.PRINTER_ADDRESS,
-    characterSet: 'PC858_EURO',
-    removeSpecialCharacters: false,
-    lineCharacter: "=",
-    options:{
-      timeout: 5000
-    }
+    interface: "tcp://192.168.1.205:9100"
   });
 
   let isConnected = await printer.isPrinterConnected();
@@ -56,8 +71,8 @@ function setupSanity() {
 }
 
 async function setup() {
-  const client = setupSanity();
-  const printer = setupPrinter();
+  // const client = setupSanity();
+  const printer = await setupPrinter();
 
   // Initialize watcher.
   const watcher = chokidar.watch(process.env.FOLDER, {
@@ -66,11 +81,11 @@ async function setup() {
     ignoreInitial: true,
   });
 
-  watcher.on('add', (path) => {
+  watcher.on('add', async (path) => {
     console.log(chalk.green(`file added at path: ${path}`));
 
-    printImage(printer, path);
-    sendToServer(client, path);
+    await printImage(printer, path);
+    // sendToServer(client, path);
   });
 }
 
