@@ -7,6 +7,7 @@ import { printer as ThermalPrinter, types } from "node-thermal-printer";
 import sanityClient from '@sanity/client'
 import fs from 'fs';
 import path from 'path';
+import Jimp from 'jimp2';
 
 // Configure Dotenv to read environment variables from .env file
 // automatically
@@ -65,6 +66,7 @@ async function printImage(printer, image, counter) {
     await printer.printImage(image);
 
     printer.newLine();
+    printer.newLine();
 
     printer.println("No refunds bye");
 
@@ -80,6 +82,28 @@ async function printImage(printer, image, counter) {
   } catch(error) {
     console.log(chalk.red('Error printing image', error));
   }
+}
+
+function transformImage(sourceFile) {
+  const transformedPath = sourceFile.replace('print', 'finalprint');
+
+  return new Promise(resolve => {
+    Jimp.read(sourceFile, (err, larger) => {
+      larger.resize(480, 1200);
+      Jimp.read(sourceFile, (err, orig) => {
+        larger.composite(orig, 0, 0);
+        Jimp.read(sourceFile, (err, flip) => {
+          flip.mirror(false, true);
+          larger
+            .composite(flip, 0, 600)
+            .dither565()
+            .write(transformedPath, () => {
+              resolve(transformedPath);
+            });
+        });
+      });
+    });
+  });
 }
 
 function sendToServer(client, filePath) {
@@ -131,7 +155,9 @@ async function setup() {
   watcher.on('add', async (path) => {
     console.log(chalk.green(`file added at path: ${path}`));
 
-    await printImage(printer, path, counter);
+    const newPath = await transformImage(path);
+
+    await printImage(printer, newPath, counter);
 
     counter++;
     // sendToServer(client, path);
