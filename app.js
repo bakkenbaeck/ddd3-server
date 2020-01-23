@@ -8,19 +8,69 @@ import sanityClient from '@sanity/client'
 import fs from 'fs';
 import path from 'path';
 import Jimp from 'jimp2';
+import moment from 'moment';
 
 // Configure Dotenv to read environment variables from .env file
 // automatically
 dotenv.config();
 
+const headerQuotes = [
+  {
+    person: "Jorge Luis Borges",
+    quote: "“We are our memory, we are that chimerical museum of shifting shapes, that pile of broken mirrors.”",
+  },
+  {
+    person: "Paul Klee",
+    quote: "“Everything vanishes around me, and works are born as if out of the void. Ripe, graphic fruits fall off.”",
+  },
+  {
+    person: "Oscar Wilde",
+    quote: "“Memory, like a horrible malady, was eating his soul away.”",
+  },
+  {
+    person: "Virginia Woolf",
+    quote: "“Memory runs her needle in and out, up and down, hither and thither. We know not what comes next, or what follows after.”",
+  },
+  {
+    person: "Sylvia Plath",
+    quote: "“Remember, remember, this is now, and now, and now. Live it, feel it, cling to it.”",
+  },
+  {
+    person: "Walter Benjamin",
+    quote: "“Memory is not an instrument for surveying the past — its theater.”",
+  },
+  {
+    person: "Charles Baudelaire",
+    quote: "“Remembering is only a new way of suffering.”",
+  },
+];
+
+const footerQuotes = [
+  "We couldn't find the image you're looking for",
+  "[There doesn't appear to be anyone here]",
+  "Image Not Found",
+  "Oops, looks like you are lost",
+  "Something's wrong, try again",
+  "There's been a glitch in the system",
+  "Oh uh, your face is no longer there",
+  "Your requested image was not found",
+  "This image is broken",
+  "There is no one here",
+  "User identity is fragmented",
+];
+
+function getSample(arr) {
+  return arr[Math.floor(Math.random() * arr.length)];
+}
+
 async function printImage(printer, image, counter) {
 
   console.log(chalk.green('Start printing image...'));
 
-  // const date = new Date();
+  const headerQuote = getSample(headerQuotes);
+  const footerQuote = getSample(footerQuotes);
 
-  // date.
-
+  const date = moment().format('DD.MM.YYYY, HH:mm');
 
   try {
     printer.clear();
@@ -34,7 +84,7 @@ async function printImage(printer, image, counter) {
 
     printer.newLine();
 
-    printer.println(`23.01.20 20:53`);
+    printer.println(date);
     printer.println(`#${counter}`);
 
     printer.newLine();
@@ -50,12 +100,12 @@ async function printImage(printer, image, counter) {
     printer.newLine();
 
     printer.alignLeft();
-    printer.println("“The world is suffering from a dark and silent phenomenon known as ‘digital decay’ – anything stored in computerized form is vulnerable to breakdown and obsolescence.”");
+    printer.println(headerQuote.quote);
 
     printer.newLine();
 
     printer.alignRight();
-    printer.println("— Bruce Sterling (2004)");
+    printer.println(`— ${headerQuote.person}`);
 
     printer.newLine();
 
@@ -68,7 +118,8 @@ async function printImage(printer, image, counter) {
     printer.newLine();
     printer.newLine();
 
-    printer.println("No refunds bye");
+    printer.println("404");
+    printer.println(footerQuote);
 
     printer.newLine();
 
