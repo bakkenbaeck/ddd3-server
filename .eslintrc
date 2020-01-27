@@ -1,0 +1,30 @@
+{
+  "extends": ["airbnb", "prettier"],
+  "rules": {
+    "react/destructuring-assignment": [
+      "error", {
+        "array": false,
+        "object": false
+      },
+      {
+        "enforceForRenamedProperties": false
+      }
+    ],
+    "import/order": "off",
+    "react/jsx-filename-extension": [1, {"extensions": [".js", ".jsx"]}],
+    "react/jsx-one-expression-per-line": "off",
+    "react/jsx-wrap-multilines": "off",
+    "react/prop-types": 0,
+    "comma-dangle": ["error", "always-multiline"],
+    "no-param-reassign": "off",
+    "import/prefer-default-export": "off",
+    "no-console": "off",
+    "no-throw-literal": "off",
+    "no-use-before-define": "off",
+    "no-underscore-dangle": "off",
+    "quotes": ["error", "single", { "allowTemplateLiterals": true }],
+    "max-len": [1, 180, 2, {"ignoreUrls": true}],
+    "react/jsx-closing-bracket-location": [1, "after-props"],
+    "react/jsx-indent" : [2, 2, {"indentLogicalExpressions": true}],
+  }
+}
