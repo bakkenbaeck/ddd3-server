@@ -1,7 +1,7 @@
 import chalk from "chalk";
 import { printer as ThermalPrinter, types } from "node-thermal-printer";
 
-type CommandString = "CUT";
+type CommandString = "CUT" | "PRINT_IMAGE";
 
 interface Command {
   command: CommandString;
@@ -14,7 +14,28 @@ const getCommand = (
 ) => {
   const COMMANDS = {
     CUT: (_payload: any) => printer.cut(),
-    PRINT_IMAGE: async (image: string) => printer.printImage(image)
+    CLEAR: (_payload: any) => printer.clear(),
+    BEEP: (_payload: any) => printer.beep(),
+    UPSIDE_DOWN: (payload: boolean) => printer.upsideDown(payload),
+    PARTIAL_CUT: (_payload: any) => printer.partialCut(),
+    PRINT_IMAGE: async (image: string) => printer.printImage(image),
+    PRINTLN: (payload: string) => printer.println(payload),
+    SET_CHARACTER_SET: (payload: string) => printer.setCharacterSet(payload),
+    BOLD: (payload: any) => printer.bold(payload),
+    INVERT: (payload: any) => printer.invert(payload),
+    UNDERLINE: (payload: any) => printer.underline(payload),
+    UNDERLINE_THICK: (payload: any) => printer.underlineThick(payload),
+    DRAW_LINE: (_payload: any) => printer.drawLine(),
+    NEW_LINE: (_payload: any) => printer.newLine(),
+    ALIGN_CENTER: (_payload: any) => printer.alignCenter(),
+    ALIGN_LEFT: (_payload: any) => printer.alignLeft(),
+    ALIGN_RIGHT: (_payload: any) => printer.alignRight(),
+    SET_TYPE_FONT_A: (_payload: any) => printer.setTypeFontA(),
+    SET_TYPE_FONT_B: (_payload: any) => printer.setTypeFontB(),
+    SET_TEXT_NORMAL: (_payload: any) => printer.setTextNormal(),
+    SET_TEXT_DOUBLE_HEIGHT: (_payload: any) => printer.setTextDoubleHeight(),
+    SET_TEXT_DOUBLE_WIDTH: (_payload: any) => printer.setTextDoubleWidth(),
+    SET_TEXT_QUAD_AREA: (_payload: any) => printer.setTextQuadArea(),
   };
 
   return COMMANDS[command];
@@ -33,6 +54,8 @@ export default class Printer {
       throw new Error("Provide at least one command");
     }
 
+    this.printer.clear();
+
     await Promise.all(
       commands.map(async (command) => {
         try {
@@ -43,7 +66,7 @@ export default class Printer {
       })
     );
 
-    return this.printer.execute();
+    await this.printer.execute();
   }
 
   async executeCommand(comm: Command) {
